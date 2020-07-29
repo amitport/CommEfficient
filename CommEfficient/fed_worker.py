@@ -21,8 +21,9 @@ def worker_loop(input_model, ps_weights, client_weights, client_errors,
 
     os.environ["MASTER_ADDR"] = "127.0.0.1"
     os.environ["MASTER_PORT"] = str(args.port)
-    torch.distributed.init_process_group("nccl", rank=rank,
-                                         world_size=world_size)
+    if torch.distributed.is_available():
+        torch.distributed.init_process_group("nccl", rank=rank,
+                                             world_size=world_size)
     while True:
         try:
             # batches is a list of batches that we should process
@@ -135,7 +136,8 @@ def worker_loop(input_model, ps_weights, client_weights, client_errors,
 
         if is_train:
             # reduce the locally summed g across devices
-            torch.distributed.reduce(sum_g, 0)
+            if torch.distributed.is_available():
+                torch.distributed.reduce(sum_g, 0)
 
 def process_batch(batch, model, ps_weights, client_weights,
                   client_errors, client_velocities,

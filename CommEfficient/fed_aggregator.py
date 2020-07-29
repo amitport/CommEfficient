@@ -160,8 +160,9 @@ class FedModel:
         # set up communication channel with worker processes
         os.environ["MASTER_ADDR"] = "127.0.0.1"
         os.environ["MASTER_PORT"] = str(args.port)
-        torch.distributed.init_process_group(backend="nccl", rank=0,
-                                             world_size=world_size)
+        if torch.distributed.is_available():
+            torch.distributed.init_process_group(backend="nccl", rank=0,
+                                                 world_size=world_size)
 
         # now that we've started the child processes,
         # we can safely move things to CUDA
@@ -326,7 +327,8 @@ class FedModel:
         # reduce the gradients
         transmit = torch.zeros(shape).to(self.args.device).float()
         #print("before reduce", shms())
-        torch.distributed.reduce(transmit, 0)
+        if torch.distributed.is_available():
+            torch.distributed.reduce(transmit, 0)
         #print("after reduce", shms())
 
         g_minibatch_gradient[:] = transmit / batch[0].size()[0]

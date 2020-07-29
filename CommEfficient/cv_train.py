@@ -391,6 +391,8 @@ if __name__ == "__main__":
 
     # set up learning rate scheduler
     # original cifar10_fast repo uses [0, 5, 24] and [0, 0.4, 0]
+    if args.lr_scale is None:
+        args.lr_scale = 0.4
     lr_schedule = PiecewiseLinear([0, args.pivot_epoch, args.num_epochs],
                                   [0, args.lr_scale,                  0])
 

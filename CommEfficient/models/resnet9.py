@@ -74,6 +74,8 @@ class Residual(nn.Module):
 class BasicNet(nn.Module):
     def __init__(self, do_batchnorm, channels, weight,  pool, num_classes, initial_channels=3, new_num_classes=None, **kw):
         super().__init__()
+        # print('channels ')
+        # print(channels)
         self.new_num_classes = new_num_classes
         self.prep = ConvBN(do_batchnorm, initial_channels, channels['prep'], **kw)
 
@@ -88,16 +90,25 @@ class BasicNet(nn.Module):
                              pool=pool, **kw)
         self.res3 = Residual(do_batchnorm, channels['layer3'], **kw)
 
-        self.pool = nn.MaxPool2d(4)
+        self.pool = nn.MaxPool2d(2)
         self.linear = nn.Linear(channels['layer3'], num_classes, bias=False)
         self.classifier = Mul(weight)
 
     def forward(self, x):
+        # print('x')
+        # print(x.size())
         out = self.prep(x)
+        # print('prep')
+        # print(out.size())
         out = self.res1(self.layer1(out))
+        # print('res1')
+        # print(out.size())
         out = self.layer2(out)
+        # print('layer2')
+        # print(out.size())
         out = self.res3(self.layer3(out))
-
+        # print('res3')
+        # print(out.size())
         out = self.pool(out).view(out.size()[0], -1)
         out = self.classifier(self.linear(out))
         return out

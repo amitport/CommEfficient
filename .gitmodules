@@ -1,3 +1,6 @@
 [submodule "fixup"]
 	path = fixup
 	url = https://github.com/hongyi-zhang/Fixup.git
+[submodule "leaf"]
+	path = leaf
+	url = https://github.com/TalwalkarLab/leaf.git
